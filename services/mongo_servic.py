@@ -2,9 +2,9 @@ import pandas as pd
 from pandas import DataFrame
 
 from databases.mongodb.config import collection
-from repositores.mongo import get_raw_data_casualties, get_raw_data_location
+from repositores.mongo import get_raw_data_casualties
 
-def get_data_by_(by):
+def get_data_by_(by, returned):
     raw_data = get_raw_data_casualties()
 
     df = pd.DataFrame(raw_data)
@@ -16,45 +16,34 @@ def get_data_by_(by):
 
     df_exploded = df.explode(by)
 
-    analysis = df_exploded.groupby(by).agg({
-        'injured': 'sum',
-        'killed': 'sum',
-        'attack_types': 'count',
-        f'{by}':'first'
-    }).rename(columns={
-        'injured': 'total_injured',
-        'killed': 'total_killed',
-        'attack_types': 'attack_count',
-        f'{by}':f'{by}'
-    })
+    df_exploded['lethality_score'] = df_exploded['injured'] + (df_exploded['killed'] * 2)
+    df_exploded['event_count'] = df_exploded[by].count()
+    analysis_sum = df_exploded.groupby(by)['lethality_score'].sum().reset_index()
+    analysis_avg = df_exploded.groupby(by)['lethality_score'].mean().reset_index()
 
-    analysis['lethality_score'] = analysis['total_injured'] + (analysis['total_killed'] * 2)
-
-    result = analysis.sort_values('lethality_score', ascending=False)
-    # highest_lethality = result[['lethality_score', f'{by}']].iloc[0]
-
-    return result
+    if returned == "sum":
+        return analysis_sum
+    elif returned == "avg":
+        return analysis_avg
+    else:
+        return None
 
 
 
 
 def analyze_attack_types(top_n=None):
 
-    result = get_data_by_('attack_types')
-
+    result = get_data_by_('attack_types','sum')
+    print(result)
     if top_n:
         result = result.head(top_n)
 
     return result
 
-
-
-
 def deadliest_average_by_region(top=None):
 
-    result = get_data_by_("region")
+    result = get_data_by_("region",'avg')
 
-    if top:
-        result = result.head(top)
+    print(result)
 
     return result
