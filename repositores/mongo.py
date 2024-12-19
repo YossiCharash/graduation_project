@@ -19,19 +19,18 @@ def read_csv(path):
 
     rows = df.to_dict('records')
 
-    for batch in chunked(rows, 50):
+    for batch in chunked(rows, 100):
         insert_data_to_mongodb(batch)
 
 
 
 # Retrieving the data from Mongo
-def get_raw_data_casualties(collection):
+def get_raw_data_casualties():
     raw_data = list(collection.find({}, {
         'attack_types': 1,
         'casualties': 1,
+        'location': 1,
         '_id': 0
     }))
     return raw_data
-
-
 

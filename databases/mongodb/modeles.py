@@ -7,7 +7,7 @@ def insert_data_to_mongodb(data_list):
     queries = [
         {
             "event_id": data['eventid'],
-            "date": datetime(data['iyear'], data['imonth'] if 1 <= data['imonth'] <= 12 else 1, data['iday'] if 1 <= data['iday'] <= 31 else 1),
+            "date": datetime(data['iyear'], data['imonth'] if 1 <= data['imonth'] <= 12 else 1,1),
             "location": {
                 "city": data['city'],
                 "latitude": data['latitude'],
@@ -16,9 +16,8 @@ def insert_data_to_mongodb(data_list):
                 "country": data['country_txt']
             },
             "casualties": {
-                "injured": data['nwound'],
-                "killed": data['nkill'],
-                "sum_terrorists": data['nperps']
+                "injured": data.get('nwound',0),
+                "killed": data.get('nkill',0)
             },
             "terrorists_attack_group": list(filter(None, [data['gname'], data.get('gname1'), data.get('gname2')])),
             "attack_types": list(filter(None, [data['attacktype1_txt'], data.get('attacktype2_txt'), data.get('attacktype3_txt')])),
