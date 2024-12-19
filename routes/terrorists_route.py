@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from repositores.mongo import read_csv
+from databases.main import read_csv_
 from services.mongo_servic import analyze_attack_types, deadliest_average_by_region
 
 Terrorists = Blueprint('Terrorists', __name__)
@@ -8,7 +8,7 @@ Terrorists = Blueprint('Terrorists', __name__)
 
 @Terrorists.route("/init/",methods=['POST'])
 def init_db():
-    read_csv("data/globalterrorismdb_0718dist.csv")
+    read_csv_("data/globalterrorismdb_0718dist.csv")
     return jsonify("The database is created!")
 
 
