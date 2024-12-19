@@ -1,0 +1,48 @@
+
+services:
+#  neo4j:
+#    image: neo4j:latest
+#    ports:
+#      - "7474:7474"
+#      - "7687:7687"
+#    environment:
+#      NEO4J_AUTH: neo4j/password
+#    volumes:
+#      - neo4j_data:/data
+#      - neo4j_logs:/logs
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    volumes:
+      - mongo_data:/data/db
+
+#  postgres:
+#    image: postgres:17
+#    container_name: postgres_container
+#    environment:
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: 1234
+#      POSTGRES_DB: terrorism_data
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+
+
+
+volumes:
+  mongo_data:
+
+
+#
+#volumes:
+#  neo4j_data:
+#  neo4j_logs:
+#  postgres_data:
