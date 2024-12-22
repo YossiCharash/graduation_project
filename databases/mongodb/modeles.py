@@ -1,6 +1,11 @@
 import math
+import uuid
 from datetime import datetime
+
+import bson
 import pandas as pd
+from networkx.algorithms.operators.binary import union
+from pandas import DataFrame
 
 from databases.mongodb.config import collection
 
@@ -40,3 +45,53 @@ def insert_data_to_mongodb(data_list):
     else:
         return []
 
+
+def is_country(country_name):
+    raw_data = list(collection.find(
+        {'location.country': country_name},  # Filter directly in the database
+        {'location.latitude': 1, 'location.longitude': 1, '_id': 0}  # Fetch only necessary fields
+    ))
+    if raw_data:
+        df = pd.DataFrame(raw_data)
+        df['latitude'] = df['location'].apply(
+            lambda x: float(x['latitude']) if x.get('latitude') is not None and not pd.isna(x['latitude']) else None)
+        df['longitude'] = df['location'].apply(
+            lambda x: float(x['longitude']) if x.get('longitude') is not None and not pd.isna(x['longitude']) else None)
+
+        df = df.dropna(subset=['latitude', 'longitude'])
+
+        if not df.empty:
+            return df['latitude'].iloc[0], df['longitude'].iloc[0]
+
+    return None, None
+
+
+def marge_new_data(data_list):
+    queries = []
+    for data in data_list:
+        lat_lon = is_country(data['Country'])
+        if lat_lon[0] is not None and lat_lon[1] is not None:  # Ensure latitude and longitude are valid
+            queries.append({
+                "event_id": bson.Binary.from_uuid(uuid.uuid4()),
+                "date": data['Date'],
+                "location": {
+                    "city": data.get('City'),
+                    "country": data['Country'],
+                    "latitude": lat_lon[0],
+                    "longitude": lat_lon[1],
+                },
+                "casualties": {
+                    "injured": data.get('Injuries ', 0),
+                    "killed": data.get('Fatalities ', 0)
+                },
+                "terrorists_attack_group": data.get('Perpetrator'),
+                "attack_types": data.get('Weapon'),
+                "description": data.get('Description'),
+            })
+    if queries:
+        result = collection.insert_many(queries)
+        print(f"Inserted {len(queries)} rows")
+        return result.inserted_ids
+    else:
+        print("No valid data to insert.")
+        return []
