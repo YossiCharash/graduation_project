@@ -36,4 +36,3 @@ def insert_new_csv_(path):
 
 
 
-insert_new_csv_('../data/RAND_Database_of_Worldwide_Terrorism_Incidents.csv')

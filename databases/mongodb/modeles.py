@@ -49,7 +49,7 @@ def insert_data_to_mongodb(data_list):
 def is_country(country_name):
     raw_data = list(collection.find(
         {'location.country': country_name},  # Filter directly in the database
-        {'location.latitude': 1, 'location.longitude': 1, '_id': 0}  # Fetch only necessary fields
+        {'location.latitude': 1, 'location.longitude': 1,'location.area':1, '_id': 0}  # Fetch only necessary fields
     ))
     if raw_data:
         df = pd.DataFrame(raw_data)
@@ -57,11 +57,13 @@ def is_country(country_name):
             lambda x: float(x['latitude']) if x.get('latitude') is not None and not pd.isna(x['latitude']) else None)
         df['longitude'] = df['location'].apply(
             lambda x: float(x['longitude']) if x.get('longitude') is not None and not pd.isna(x['longitude']) else None)
+        df['area'] = df['location'].apply(
+            lambda x: str(x['area']) if x.get('longitude') is not None and not pd.isna(x['area']) else None)
 
         df = df.dropna(subset=['latitude', 'longitude'])
 
         if not df.empty:
-            return df['latitude'].iloc[0], df['longitude'].iloc[0]
+            return df['latitude'].iloc[0], df['longitude'].iloc[0],df['area'].iloc[0]
 
     return None, None
 
@@ -70,7 +72,7 @@ def marge_new_data(data_list):
     queries = []
     for data in data_list:
         lat_lon = is_country(data['Country'])
-        if lat_lon[0] is not None and lat_lon[1] is not None:  # Ensure latitude and longitude are valid
+        if lat_lon[0] is not None and lat_lon[1] is not None and lat_lon[2]:  # Ensure latitude and longitude are valid
             queries.append({
                 "event_id": bson.Binary.from_uuid(uuid.uuid4()),
                 "date": data['Date'],
@@ -79,6 +81,7 @@ def marge_new_data(data_list):
                     "country": data['Country'],
                     "latitude": lat_lon[0],
                     "longitude": lat_lon[1],
+                    "area":lat_lon[2],
                 },
                 "casualties": {
                     "injured": data.get('Injuries ', 0),
