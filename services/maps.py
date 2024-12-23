@@ -1,4 +1,6 @@
 import os
+
+from folium.plugins import MarkerCluster
 from sklearn.cluster import KMeans
 import folium
 
@@ -115,3 +117,71 @@ def plot_top_groups_on_map_(df, region=None, top_n=5):
     attack_map.save("../maps/terrorist_groups_map.html")
     print("Map saved as 'terrorist_groups_map.html'")
 
+
+
+def plot_groups_common_goals(df, filt):
+
+    df = df.dropna(subset=['latitude', 'longitude'])
+
+    if not df.empty:
+        map_center = [df['latitude'].mean(), df['longitude'].mean()]
+        attack_map = folium.Map(location=map_center, zoom_start=6)
+    regions = df['region'].unique()
+    for region in regions:
+        region_data = df[df['region'] == region]
+        for _, row in region_data.iterrows():
+            region = row[filt]
+            target_types = row['target_types']
+            group_name = row['group_name']
+            lat, lon = row['latitude'], row['longitude']
+            folium.Marker(
+                location=[lat, lon],
+                popup=f"Region: {region}<br>Group: {group_name}<br>target_types: {target_types}<br><br>Top Groups in Region:<br>",
+                icon=folium.Icon(color="red", icon="info-sign"),
+            ).add_to(attack_map)
+
+    attack_map.save("../maps/plot_groups_common_goals.html")
+    print("Map saved as 'plot_groups_common_goals.html'")
+
+
+def plt_areas_common_attack_strategies_by_groups(data,filt):
+    map_center = [data['latitude'].mean(), data['longitude'].mean()]
+    attack_map = folium.Map(location=map_center, zoom_start=(2))
+    marker_cluster = MarkerCluster().add_to(attack_map)
+
+    for _, row in data.iterrows():
+        popup_content = (
+            f"<b>Attack Type:</b> {row['attack_types']}<br>"
+            f"<b>Unique Groups:</b> {row['unique_groups']}<br>"
+            f"<b>Location:</b> {row[filt]}"
+        )
+        folium.Marker(
+            location=[row['latitude'], row['longitude']],
+            popup=popup_content,
+            icon=folium.Icon(color='blue', icon='info-sign'),
+        ).add_to(marker_cluster)
+        print(_)
+    attack_map.save("../maps/areas_common_attack_strategies_by_groups.html")
+    print("Map saved as 'areas_common_attack_strategies_by_groups_map.html'")
+
+
+
+
+def plot_identify_areas_with_high_intergroup_activity(df,filter_by):
+    map_center = [df['latitude'].mean(), df['longitude'].mean()]
+    activity_map = folium.Map(location=map_center, zoom_start=6)
+    marker_cluster = MarkerCluster().add_to(activity_map)
+
+    for _, row in df.iterrows():
+        popup_content = (
+            f"<b>{filter_by.capitalize()}:</b> {row[filter_by]}<br>"
+            f"<b>Unique Groups Count:</b> {row['unique_groups_count']}<br>"
+            # f"<b>Groups:</b> {', '.join(row['group_list'])}"
+        )
+        folium.Marker(
+            location=[row['latitude'], row['longitude']],
+            popup=popup_content,
+            icon=folium.Icon(color='blue', icon='info-sign')
+        ).add_to(marker_cluster)
+    activity_map.save("../maps/identify_areas_with_high_intergroup_activity.html")
+    print("Map saved as 'dentify_areas_with_high_intergroup_activity.html'")

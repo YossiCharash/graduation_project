@@ -45,6 +45,20 @@ def insert_data_to_mongodb(data_list):
     else:
         return []
 
+def create_index(collection):
+    """
+    Create indexes for the imported columns to improve query performance.
+    """
+    collection.create_index([('date', 1)])
+    collection.create_index([('location.country', 1)])
+    collection.create_index([('location.region', 1)])
+    collection.create_index([('location.city', 1)])
+    collection.create_index([('attack.attack_code', 1)])
+    collection.create_index([('target.target_code', 1)])
+    collection.create_index([('group_name', 1)])
+    collection.create_index([('kill', 1)])
+    collection.create_index([('injured', 1)])
+
 
 def is_country(country_name):
     raw_data = list(collection.find(
@@ -74,7 +88,7 @@ def marge_new_data(data_list):
         lat_lon = is_country(data['Country'])
         if lat_lon[0] is not None and lat_lon[1] is not None and lat_lon[2]:  # Ensure latitude and longitude are valid
             queries.append({
-                "event_id": bson.Binary.from_uuid(uuid.uuid4()),
+                "event_id": uuid.uuid4().int % (2 ** 63),
                 "date": data['Date'],
                 "location": {
                     "city": data.get('City'),

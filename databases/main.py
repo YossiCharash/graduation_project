@@ -1,10 +1,9 @@
 import pandas as pd
 from more_itertools import chunked
-from pandas.core.interchange.dataframe_protocol import DataFrame
 
-from databases.mongodb.modeles import insert_data_to_mongodb, marge_new_data
-from databases.neo4j.config_neo4j import neo4j_driver
-from databases.neo4j.models_neo4j import create_db_in_neo4j
+from databases.mongodb.config import collection
+from databases.mongodb.modeles import insert_data_to_mongodb, marge_new_data, create_index
+
 
 
 def read_csv_(path):
@@ -23,6 +22,8 @@ def read_csv_(path):
 
     for batch in chunked(rows, 100):
         insert_data_to_mongodb(batch)
+        create_index(collection)
+
 
 
 

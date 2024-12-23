@@ -1,6 +1,6 @@
 from flask import Flask
 
-from routes.terrorists_route import Terrorists
+from routes.terrorists_route import Terrorists, init_db
 
 app = Flask(__name__)
 app.register_blueprint(Terrorists)
