@@ -46,8 +46,7 @@ def analyze_attack_types(top_n=None):
        and a kill is worth 2 points for the calculation.
     :param top_n:
     """
-    result = get_data_by_('attack_types','sum')
-    print(result)
+    result = get_data_by_('attack_types')
     if top_n:
         result = result.head(top_n)
 
@@ -78,11 +77,10 @@ def deadliest_average_by_region(top_n=None):
     if top_n:
         avg_casualties = avg_casualties.sort_values(by='avg_casualties', ascending=False).head(top_n)
 
-    print(avg_casualties)
 
-    plot_casualties(avg_casualties)
+    result = plot_casualties(avg_casualties)
 
-    return avg_casualties
+    return result
 
 
 
@@ -94,7 +92,6 @@ def five_groups_deadliest():
     result = get_data_by_('terrorists_attack_group')
     result  = result[result['terrorists_attack_group']!= 'Unknown']
     result = result.head(5)
-    print(result)
     return result
 
 
@@ -128,14 +125,13 @@ def change_number_attacks(top_n=None):
     if top_n:
         avg_casualties = avg_casualties.sort_values(by='change_attack', ascending=False).head(top_n)
 
-    plot_avg_change_per_region(attacks_per_year)
-    print(avg_casualties)
-    return avg_casualties
+    result = plot_avg_change_per_region(attacks_per_year)
+    return result
 
 
 
 #ex1 8 map work
-def sum_by_grops(region=None, top_n=None, latitude=None, longitude=None):
+def sum_by_groups(region=None, top_n=None, latitude=None, longitude=None):
     """
     The most active groups in a particular area. Grouping the number of events by terrorist groups.
     :param region:
@@ -168,10 +164,9 @@ def sum_by_grops(region=None, top_n=None, latitude=None, longitude=None):
         avg_casualties = avg_casualties.groupby('region').apply(lambda x: x.head(top_n)).reset_index(drop=True)
 
     highlighted_groups = avg_casualties.groupby('region').apply(lambda x: x.nlargest(1, 'event_count')).reset_index(drop=True)
-    plot_top_groups_on_map_(highlighted_groups, top_n)
+    result = plot_top_groups_on_map_(highlighted_groups, top_n)
 
-    print(grouped_counts)
-    return grouped_counts
+    return result
 
 
 
@@ -219,7 +214,6 @@ def groups_participated_those_attacks():
 
     events_dict = event_groups.set_index('event_id')['terrorists_attack_group'].to_dict()
 
-    print(events_dict)
     return events_dict
 
 
@@ -248,7 +242,6 @@ def areas_common_attack_strategies_by_groups(filter_by):
 
     plt_areas_common_attack_strategies_by_groups(top_areas, filter_by)
 
-    print(top_areas)
     return top_areas
 
 #ex2 15
@@ -267,7 +260,6 @@ def groups_similar_preferences_goals():
     similar_groups = grouped.groupby('target_types')['group_name'].apply(list).reset_index()
     similar_groups = similar_groups[similar_groups['group_name'].apply(len) > 1]
 
-    print(similar_groups)
     return similar_groups.to_dict(orient='records')
 
 
@@ -290,9 +282,5 @@ def identify_areas_with_high_intergroup_activity(filter_by):
 
     plot_identify_areas_with_high_intergroup_activity(top_areas, filter_by)
 
-    print(top_areas)
     return top_areas
-
-
-
 

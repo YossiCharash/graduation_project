@@ -32,7 +32,7 @@ def plot_casualties(df):
                 icon=folium.Icon(color=colors[row['cluster']])
             ).add_to(casualty_map)
 
-        output_path = "../maps/casualty_markers_map.html"
+        output_path = "../templates/casualty_markers_map.html"
         casualty_map.save(output_path)
 
         if os.path.exists(output_path):
@@ -41,6 +41,7 @@ def plot_casualties(df):
             print("Failed to save the map.")
     else:
         print("No data available to plot on the map.")
+    return output_path
 
 
 
@@ -77,17 +78,19 @@ def plot_avg_change_per_region(df):
                 icon=folium.Icon(color='green' if row['avg_percent_change'] >= 0 else 'red')
             ).add_to(attack_map)
 
-        output_path = "../maps/avg_change_map.html"
+        output_path = "../templates/avg_change_map.html"
         attack_map.save(output_path)
 
         if os.path.exists(output_path):
             print(f"Map saved successfully to '{output_path}'")
         else:
             print("Failed to save the map.")
+        return output_path
+
     else:
         print("No data available to plot on the map.")
 
-
+    return None
 
 def plot_top_groups_on_map_(df, region=None, top_n=5):
     df = df.dropna(subset=['latitude', 'longitude'])
@@ -114,8 +117,10 @@ def plot_top_groups_on_map_(df, region=None, top_n=5):
                 icon=folium.Icon(color="red", icon="info-sign"),
             ).add_to(attack_map)
 
-    attack_map.save("../maps/terrorist_groups_map.html")
+    attack_map.save("../templates/terrorist_groups_map.html")
     print("Map saved as 'terrorist_groups_map.html'")
+
+    return 'terrorist_groups_map.html'
 
 
 
@@ -176,7 +181,6 @@ def plot_identify_areas_with_high_intergroup_activity(df,filter_by):
         popup_content = (
             f"<b>{filter_by.capitalize()}:</b> {row[filter_by]}<br>"
             f"<b>Unique Groups Count:</b> {row['unique_groups_count']}<br>"
-            # f"<b>Groups:</b> {', '.join(row['group_list'])}"
         )
         folium.Marker(
             location=[row['latitude'], row['longitude']],
@@ -184,4 +188,4 @@ def plot_identify_areas_with_high_intergroup_activity(df,filter_by):
             icon=folium.Icon(color='blue', icon='info-sign')
         ).add_to(marker_cluster)
     activity_map.save("../maps/identify_areas_with_high_intergroup_activity.html")
-    print("Map saved as 'dentify_areas_with_high_intergroup_activity.html'")
+    print("Map saved as 'identify_areas_with_high_intergroup_activity.html'")

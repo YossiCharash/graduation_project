@@ -62,7 +62,7 @@ def create_index(collection):
 
 def is_country(country_name):
     raw_data = list(collection.find(
-        {'location.country': country_name},  # Filter directly in the database
+        {'location.country': country_name},
         {'location.latitude': 1, 'location.longitude': 1,'location.area':1, '_id': 0}  # Fetch only necessary fields
     ))
     if raw_data:
