@@ -1,0 +1,5 @@
+
+
+
+
+OPEN_CAGE_API_KEY = "cc4890dd62d24413b2ae7811c6ca1f28"
