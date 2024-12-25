@@ -10,8 +10,8 @@ Terrorists = Blueprint('Terrorists', __name__, template_folder="templates")
 
 @Terrorists.route("/init/",methods=['POST'])
 def init_db():
-    # read_csv_("C:\\Users\\c0548\\PycharmProjects\\graduation_project\\data\\globalterrorismdb_0718dist.csv")
-    insert_new_csv_('C:\\Users\\c0548\\PycharmProjects\\graduation_project\\data\\RAND_Database_of_Worldwide_Terrorism_Incidents.csv')
+    read_csv_("../data/globalterrorismdb_0718dist.csv")
+    insert_new_csv_('../data/RAND_Database_of_Worldwide_Terrorism_Incidents.csv')
     return jsonify("The database is created!")
 
 
